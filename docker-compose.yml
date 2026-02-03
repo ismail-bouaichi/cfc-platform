@@ -1,9 +1,8 @@
-version: '3.8'
-
 services:
   # --- INFRASTRUCTURE ---
   postgres:
     image: postgres:15-alpine
+    platform: linux/amd64
     container_name: cfc-postgres
     environment:
       POSTGRES_USER: cfc_user
@@ -22,6 +21,7 @@ services:
 
   mongodb:
     image: mongo:6-jammy
+    platform: linux/amd64
     container_name: cfc-mongodb
     environment:
       MONGO_INITDB_ROOT_USERNAME: cfc_mongo
@@ -31,6 +31,7 @@ services:
 
   redis:
     image: redis:alpine
+    platform: linux/amd64
     container_name: cfc-redis
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
@@ -41,6 +42,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3-management
+    platform: linux/amd64
     container_name: cfc-rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: guest
@@ -55,6 +57,7 @@ services:
   # --- BACKEND SERVICES (LARAVEL + PHP-FPM) ---
   auth-service:
     build: ./services/auth-service
+    platform: linux/amd64
     container_name: cfc-auth-service
     volumes:
       - ./services/auth-service:/var/www
@@ -74,6 +77,7 @@ services:
 
   formation-service:
     build: ./services/formation-service
+    platform: linux/amd64
     container_name: cfc-formation-service
     volumes:
       - ./services/formation-service:/var/www
@@ -90,6 +94,7 @@ services:
 
   registration-service:
     build: ./services/registration-service
+    platform: linux/amd64
     container_name: cfc-registration-service
     volumes:
       - ./services/registration-service:/var/www
@@ -107,10 +112,11 @@ services:
   # --- NESTJS SERVICES ---
   api-gateway:
     build: ./services/api-gateway
+    platform: linux/amd64
     container_name: cfc-api-gateway
     environment:
       PORT: 3000
-      AUTH_SERVICE_URL: http://nginx/api/auth # Traffic goes through Nginx for PHP-FPM
+      AUTH_SERVICE_URL: http://nginx/api/auth
       FORMATION_SERVICE_URL: http://nginx/api/formation
     depends_on:
       - auth-service
@@ -120,6 +126,7 @@ services:
 
   notification-service:
     build: ./services/notification-service
+    platform: linux/amd64
     container_name: cfc-notification-service
     environment:
       MONGO_URI: mongodb://cfc_mongo:cfc_mongo_password@mongodb:27017/notifications?authSource=admin
@@ -133,6 +140,7 @@ services:
   # --- WEB & PROXY ---
   nginx:
     image: nginx:alpine
+    platform: linux/amd64
     container_name: cfc-nginx
     ports:
       - "80:80"
